@@ -1,0 +1,2 @@
+- NLP applications in classification problems.
+- Repository contains jupyter notebooks and datasets used for particular problem.

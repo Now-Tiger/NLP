@@ -1,0 +1,2 @@
+- NLP notes that I found very important.
+- This folder will contain only notes for nlp and its related topics and maybe some pseudocode when needed for explaination.
