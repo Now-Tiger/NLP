@@ -1,0 +1,20 @@
+@Auther: Now-Tiger
+@Purpose: Learning purpose.
+
+## -- Feature engineering techniques --
+
+1. N-grams 
+2. Vectorization techniques: Count-Vectorization, Hash-Vectorization
+3. Co-occurance matrix
+4. Features extractions
+5. PCA: Principal Component Alanysis.
+
+Hash Vectorization:
+    -   The count vectorization and co-occurance matrix has one limitation though.
+    -   In these methods vocabulary can become very large and cause memory/computation problem.
+
+    -   Hash Vectorization is memory efficient, instead of storing tokens as strings, the vectorizer
+        apples 'Hash Trick' to encode them as numerical indexes.
+    -   The downside is that, its ONE-WAY and once vectorized, the features cannot be retrived.
+
+    -   from sklearn.feature_extraction.text import HashingVectorizer   ::  scikit-lern import path.
