@@ -3,9 +3,8 @@
 
 from nltk.corpus import wordnet as wn
 
-# English is a very ambiguous language. Almost every other word has
-# a different meaning in different contexts.
 
+# English is a very ambiguous language. Almost every other word has a different meaning in different contexts.
 
 CHAIR: str = "Chair"
 ANIMAL: str = "Elephant"
