@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 import os
 import re
-import string
 from urllib import request
 
 from bs4 import BeautifulSoup as soup
@@ -30,9 +29,8 @@ def clean_corpus() -> list:
     with open(PATH + FILENAME, 'r') as lines:
         corpus = " ".join(x.strip() for x in lines.readlines())
     stoppies = stopwords.words('english')
-    sent_tokens = sent_tokenize(str.lower(corpus))
     word_tokens = word_tokenize(str.lower(corpus))
-    cleans = [re.sub(r'[^\w\s\0-9]', '', token) for token in word_tokens]
+    cleans = [re.sub(r'[^\w\s]', '', token) for token in word_tokens]
     without_stops = [word for word in cleans if word not in stoppies]
     print(without_stops)
 
@@ -44,5 +42,5 @@ if __name__ == "__main__":
         -----------------------------------
         remove ( all the text inside the these paranthesis and paranthesis as well &
         the word e.g. as well because the full stop after 'g' causing the preceeding 
-        word to on the new line )
+        word to be on the new line )
     """
