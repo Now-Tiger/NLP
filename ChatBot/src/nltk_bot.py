@@ -26,19 +26,14 @@ def maybe_download() -> None:
             file.writelines(x.text)
     return
 
-
 def clean_corpus() -> list:
     with open(PATH + FILENAME, 'r') as lines:
-        corpus = " ".join(
-            x.strip() for x in lines.readlines()
-        )
+        corpus = " ".join(x.strip() for x in lines.readlines())
     stoppies = stopwords.words('english')
     sent_tokens = sent_tokenize(str.lower(corpus))
     word_tokens = word_tokenize(str.lower(corpus))
     cleans = [re.sub(r'[^\w\s\0-9]', '', token) for token in word_tokens]
-    without_stops = [
-        word for word in cleans if word not in stoppies
-    ]
+    without_stops = [word for word in cleans if word not in stoppies]
     print(without_stops)
 
 
@@ -46,4 +41,8 @@ if __name__ == "__main__":
     clean_corpus()
     """ try different regex sub r'\([^)]*\)' 
         Because many punctuations are staying in the corpus as it is.
+        -----------------------------------
+        remove ( all the text inside the these paranthesis and paranthesis as well &
+        the word e.g. as well because the full stop after 'g' causing the preceeding 
+        word to on the new line )
     """
