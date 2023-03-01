@@ -28,8 +28,7 @@ URL: str = "https://www.whatishumanresource.com/human-resource-management"
 
 
 welcome_input = ("hello", "hi", "greetings", "sup", "what's up", "hey",)
-welcome_response = ["hi", "hey", "*nods*", "hi there",
-                    "hello", "I am glad! You are talking to me"]
+welcome_response = ["hi", "hey", "*nods*", "hi there", "hello", "I am glad! You are talking to me"]
 
 
 def welcome(user_response):
@@ -64,22 +63,17 @@ with open(PATH + FILENAME, 'r') as file:
 
 
 def process_text(text) -> None:
-    remove_punct_dict = dict((ord(punct), None)
-                             for punct in string.punctuation)
+    remove_punct_dict = dict((ord(punct), None)for punct in string.punctuation)
     word_token = word_tokenize(text.lower().translate(remove_punct_dict))
-
     new_words = []
     for word in word_token:
-        new_word = unicodedata.normalize('NFKD', word).encode(
-            'ascii', 'ignore').decode('utf-8', 'ignore')
+        new_word = unicodedata.normalize('NFKD', word).encode('ascii', 'ignore').decode('utf-8', 'ignore')
         new_words.append(new_word)
-
     # -- Remove tags
     rmv = []
     for w in new_words:
         text = re.sub("&lt;/?.*?&gt;", "&lt;&gt;", w)
         rmv.append(text)
-
     # -- pos tagging and lemmatization
     tag_map = defaultdict(lambda: wn.NOUN)
     tag_map['J'] = wn.ADJ
@@ -126,6 +120,7 @@ def wikipedia_data(input) -> str:
 
 
 if __name__ == "__main__":
+    maybe_download()
     with open(PATH + FILENAME, 'r') as file:
         raw = " ".join(x.strip().lower() for x in file.readlines())
 
