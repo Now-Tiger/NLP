@@ -18,7 +18,6 @@ from warnings import filterwarnings
 filterwarnings("ignore")
 
 
-
 PATH: str = "../Data/"
 FILENAME: str = 'HR.txt'
 URL: str = "https://www.whatishumanresource.com/human-resource-management"
