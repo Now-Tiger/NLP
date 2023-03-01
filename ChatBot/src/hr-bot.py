@@ -11,7 +11,7 @@ from collections import defaultdict
 import wikipedia as wk
 from nltk import pos_tag
 from bs4 import BeautifulSoup as bs
-from nltk.corpus import (wordnet, stopwords)
+from nltk.corpus import wordnet as wn
 from nltk.stem.wordnet import WordNetLemmatizer
 from nltk.tokenize import (word_tokenize, sent_tokenize)
 
@@ -58,71 +58,91 @@ def save_tokens(path: str, tokens: list, type_of_tokens: str) -> None:
                 file.writelines('\n')
     return
 
+with open(PATH + FILENAME, 'r') as file:
+    text = " ".join(x.strip().lower() for x in file.readlines())
 
-def process_text() -> None:
+def process_text(text) -> None:
+    remove_punct_dict = dict((ord(punct), None) for punct in string.punctuation)
+    word_token = word_tokenize(text.lower().translate(remove_punct_dict))
+    
     new_words = []
-    with open(PATH + FILENAME, 'r') as file:
-        raw = " ".join(x.strip().lower() for x in file.readlines())
-    punctuation_dict = dict((ord(punct), None) for punct in string.punctuation)
-    word_tokens = word_tokenize(raw.translate(punctuation_dict))
-    for word in word_tokens:
-        new_word = unicodedata.normalize('NFKD', word).encode(
-            'ascii', 'ignore').decode('utf-8', 'ignore')
+    for word in word_token:
+        new_word = unicodedata.normalize('NFKD', word).encode('ascii', 'ignore').decode('utf-8', 'ignore')
         new_words.append(new_word)
+    
+    #Remove tags
     rmv = []
     for w in new_words:
-        text = re.sub('&lt;/?.*?&gt;', '&lt;&gt;', w)
-        text = re.sub(r'[0-9]', '', w)
+        text=re.sub("&lt;/?.*?&gt;","&lt;&gt;",w)
         rmv.append(text)
-    stoppies = stopwords.words('english')
-    rmvd = [word for word in rmv if word not in stoppies]
-    tag_map = defaultdict(lambda: wordnet.NOUN)
-    tag_map['J'] = wordnet.ADJ
-    tag_map['V'] = wordnet.VERB
-    tag_map['R'] = wordnet.ADV
+        
+    #pos tagging and lemmatization
+    tag_map = defaultdict(lambda : wn.NOUN)
+    tag_map['J'] = wn.ADJ
+    tag_map['V'] = wn.VERB
+    tag_map['R'] = wn.ADV
     lmtzr = WordNetLemmatizer()
     lemma_list = []
     rmv = [i for i in rmv if i]
-    for token, tag in pos_tag(rmvd):
+    for token, tag in pos_tag(rmv):
         lemma = lmtzr.lemmatize(token, tag_map[tag[0]])
         lemma_list.append(lemma)
     return lemma_list
 
 
 def generate_response(user_response: str = None) -> None:
-    with open(PATH + FILENAME, 'r') as file:
-        raw = " ".join(x.strip().lower() for x in file.readlines())
-    bot_resp = ''
-    sent_tokens = sent_tokenize(raw)
+    robo_response=''
     sent_tokens.append(user_response)
-    tfidf_vec = TfidfVectorizer(tokenizer=process_text, stop_words='english')
-    tfidf = tfidf_vec.fit_transform(sent_tokens)
-    values = linear_kernel(tfidf[-1], tfidf)
-    indexes = values.argsort()[0][-2]
-    flat = values.flatten()
+    TfidfVec = TfidfVectorizer(tokenizer=process_text, stop_words='english')
+    tfidf = TfidfVec.fit_transform(sent_tokens)
+    #vals = cosine_similarity(tfidf[-1], tfidf)
+    vals = linear_kernel(tfidf[-1], tfidf)
+    idx=vals.argsort()[0][-2]
+    flat = vals.flatten()
     flat.sort()
     req_tfidf = flat[-2]
-    if req_tfidf == 0 or "tell me about" in user_response:
-        print("checking wikipedia...")
+    if(req_tfidf==0) or "tell me about" in user_response:
+        print("Checking Wikipedia")
         if user_response:
-            bot_resp = wikipedia_data(user_response)
-            return bot_resp
-        else:
-            bot_resp += sent_tokens[indexes]
-            return bot_resp
+            robo_response = wikipedia_data(user_response)
+            return robo_response
+    else:
+        robo_response = robo_response+sent_tokens[idx]
+        return robo_response
 
 
 def wikipedia_data(input) -> str:
-    regex = re.search('tell me about (.*)', input)
+    reg_ex = re.search('tell me about (.*)', input)
     try:
-        if regex:
-            topic = regex.group(1)
-            wiki = wk.summary(topic, sentences=3)
+        if reg_ex:
+            topic = reg_ex.group(1)
+            wiki = wk.summary(topic, sentences = 3)
             return wiki
-    except Exception as err:
-        print(f"No content has been found: \n{err}")
+    except Exception as e:
+            print("No content has been found")
 
 
 if __name__ == "__main__":
-    lemma = process_text()  # <- working properly
-    generate_response()
+    with open(PATH + FILENAME, 'r') as file:
+        raw = " ".join(x.strip().lower() for x in file.readlines())
+
+    sent_tokens = sent_tokenize(raw)
+
+    FLAG: bool = True
+    print("This is wiki chatbot. Start typing to ask questions.\nTo exit enter bye")
+    while FLAG:
+        user_response = str(input(">> ")).lower()
+        if user_response not in ["bye", "shutdown", "exit", "quit"]:
+            if user_response == "thanks" or user_response == "thank you":
+                FLAG = False
+                print("Bot: You are welcome!")
+            else:
+                if welcome(user_response) != None:
+                    print(f"Bot: {welcome(user_response)}")
+                else:
+                    print("Bot: ", end="")
+                    print(generate_response(user_response))
+                    sent_tokens.remove(user_response)
+        else:
+            FLAG = False
+            print('Bot: Bye!')
