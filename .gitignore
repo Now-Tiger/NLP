@@ -1,5 +1,8 @@
 desktop.ini
 .ipynb_checkpoints
 Notes/
-Text_Processing/
+Text_Processing/*
 Basics/
+Data/
+scripts/*
+Classification/*
