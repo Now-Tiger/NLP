@@ -67,14 +67,16 @@ def process_text(text) -> None:
     word_token = word_tokenize(text.lower().translate(remove_punct_dict))
     new_words = []
     for word in word_token:
-        new_word = unicodedata.normalize('NFKD', word).encode('ascii', 'ignore').decode('utf-8', 'ignore')
+        new_word = unicodedata.normalize('NFKD', word)\
+            .encode('ascii', 'ignore')\
+            .decode('utf-8', 'ignore')
         new_words.append(new_word)
-    # -- Remove tags
+    # - Remove tags
     rmv = []
     for w in new_words:
         text = re.sub("&lt;/?.*?&gt;", "&lt;&gt;", w)
         rmv.append(text)
-    # -- pos tagging and lemmatization
+    # - pos tagging and lemmatization
     tag_map = defaultdict(lambda: wn.NOUN)
     tag_map['J'] = wn.ADJ
     tag_map['V'] = wn.VERB
@@ -90,6 +92,9 @@ def process_text(text) -> None:
 
 def generate_response(user_response: str = None) -> None:
     robo_response = ''
+    # * Fix this problem sent_tokens not initialized,
+    # reason of error: we moved code from if __name__ == "__main__" under the main method
+    # FIX SOON
     sent_tokens.append(user_response)
     TfidfVec = TfidfVectorizer(tokenizer=process_text, stop_words='english')
     tfidf = TfidfVec.fit_transform(sent_tokens)
@@ -119,13 +124,7 @@ def wikipedia_data(input) -> str:
         print("No content has been found")
 
 
-if __name__ == "__main__":
-    maybe_download()
-    with open(PATH + FILENAME, 'r') as file:
-        raw = " ".join(x.strip().lower() for x in file.readlines())
-
-    sent_tokens = sent_tokenize(raw)
-
+def main() -> None:
     FLAG: bool = True
     print("This is wiki chatbot. Start typing to ask questions.\nTo exit enter bye")
     while FLAG:
@@ -145,3 +144,11 @@ if __name__ == "__main__":
         else:
             FLAG = False
             print(">> Bye! ")
+
+
+if __name__ == "__main__":
+    maybe_download()
+    with open(PATH + FILENAME, 'r') as file:
+        raw = " ".join(x.strip().lower() for x in file.readlines())
+    sent_tokens = sent_tokenize(raw)
+    main()
