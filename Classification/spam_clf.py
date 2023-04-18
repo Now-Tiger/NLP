@@ -164,4 +164,7 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    # * Model accuracy is low and errors are hight
+    # * Fine tune preprocessing, remove stop words before hand
+    # * Fine tune model architecture
     main()
