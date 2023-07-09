@@ -110,11 +110,9 @@ def main() -> None:
         .str.replace(r'http', '', regex=True)
         .str.replace(r'com', '', regex=True)
         .str.replace(r'www', '', regex=True)
-        .apply(lambda x: " ".join(
-            x.lower() for x in x.split() if x not in stoppies)
-        )
+        .apply(lambda x: " ".join(x.lower() for x in x.split() if x not in stoppies))
     )
-    
+
     target = df['label'].map({'ham': 0, 'spam': 1})
     inputs = vectorization(max_features=1000, df=df, column='clean')
     train_inp, val_inp, train_target, val_target = split_data(inputs, target, 0.30)
