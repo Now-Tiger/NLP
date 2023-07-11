@@ -21,8 +21,15 @@ from warnings import filterwarnings
 filterwarnings('ignore')
 
 
-def baseline_model(models: dict, inputs: np.ndarray, target: pd.Series, test_inps: np.ndarray, test_target: pd.Series) -> None:
-    """ Fits the model from the models dictionary and returns metrics summary from model_metrics function. """
+def baseline_model(
+        models: dict,
+        inputs: np.ndarray,
+        target: pd.Series,
+        test_inps: np.ndarray,
+        test_target: pd.Series
+        ) -> None:
+    """ Fits the model from the models dictionary and returns 
+    metrics summary from model_metrics function. """
     for name, model in models.items():
         print(f"\n*** {name} *** ")
         model.fit(inputs, target)
@@ -57,7 +64,7 @@ def process_text(text: str) -> str:
         tex = re.sub(clean, '', sent.lower())
         te = re.sub(r'[\w\s]', '', tex)
         t = re.sub(r'[0-9]', '', te)
-    return te
+    return t
 
 
 def tokenizer(text: str) -> list:
@@ -94,15 +101,11 @@ def split_data(vectorized_inputs: np.ndarray, target: pd.Series, test_size: int)
 def main() -> None:
     PATH = '../Data/SMSspams/'
     FILE = 'SMSSpamCollection'
-    df = read_data(
-        Path(PATH + FILE),
-        sep='\t',
-        names=['label', 'message']
-    )
+    df = read_data(Path(PATH + FILE), sep='\t', names=['label', 'message'])
 
     stoppies = stopwords.words('english')
 
-    # MAKE A FUNCTION THAT DOES THE PROCESSING RATHER THAN MANUALE PROCESSING
+    # MAKE A FUNCTION THAT DOES THE PROCESSING RATHER THAN HARDCODING PROCESSING
     df['clean'] = (
         df['message'].str.replace(r'[0-9]', '', regex=True)
         .str.replace(r'[#£^.*<>?!+=/)(%]', '', regex=True)
@@ -120,7 +123,7 @@ def main() -> None:
     # ** Model table **
     models = {
         "Logistic Regression": LogisticRegression(max_iter=1000, random_state=42, solver='saga',),
-        "Logistic Reg. CV": LogisticRegressionCV(max_iter=1000, cv=3, random_state=42, solver='saga')
+        "Logistic Reg. CV": LogisticRegressionCV(max_iter=1000, cv=3, random_state=42, solver='saga',),
     }
     baseline_model(models, train_inp, train_target, val_inp, val_target)
     return
@@ -128,3 +131,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
