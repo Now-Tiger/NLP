@@ -29,7 +29,7 @@ def baseline_model(
         test_target: pd.Series
         ) -> None:
     """ Fits the model from the models dictionary and returns 
-    metrics summary from model_metrics function. """
+        metrics summary from model_metrics function. """
     for name, model in models.items():
         print(f"\n*** {name} *** ")
         model.fit(inputs, target)
@@ -38,7 +38,7 @@ def baseline_model(
     return
 
 
-def model_metrics(inputs: np.ndarray, target: pd.Series, model, name: str) -> str:
+def model_metrics(inputs: np.ndarray, target: pd.Series, model, name: str) -> None:
     """ Returns a performance summary/metrics of the model """
     preds = model.predict(inputs)
 
