@@ -51,7 +51,7 @@ def model_metrics(inputs: np.ndarray, target: pd.Series, model, name: str) -> No
     return
 
 
-def read_data(filename: str, sep: str = None, names: list | str = None) -> pd.DataFrame:
+def read_data(filename: str, sep: str = None, names: list[str] | str = None) -> pd.DataFrame:
     """ Read the csv dataset and returns data in Pandas DataFrame object. """
     data = pd.read_csv(filename, sep = sep, names = names)
     return data
