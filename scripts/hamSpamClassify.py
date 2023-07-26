@@ -53,18 +53,19 @@ def model_metrics(inputs: np.ndarray, target: pd.Series, model, name: str) -> No
 
 def read_data(filename: str, sep: str = None, names: list[str] | str = None) -> pd.DataFrame:
     """ Read the csv dataset and returns data in Pandas DataFrame object. """
-    data = pd.read_csv(filename, sep = sep, names = names)
+    data = pd.read_csv(filename, sep=sep, names=names)
     return data
 
 
-def process_text(text: str) -> str:
-    """ BUGS Here, Fix required """
-    clean = re.compile(r'<.*?>')
-    for sent in text.split():
-        tex = re.sub(clean, '', sent.lower())
-        te = re.sub(r'[\w\s]', '', tex)
-        t = re.sub(r'[0-9]', '', te)
-    return t
+def process_texts(text: str) -> str:
+    for sent in text.split('-'):
+        t = re.sub(r'http://\S+|https://\S+', '', sent.lower())
+        t = re.sub(r'[a-z]+.com\S+', '', t)
+        t = re.sub(r'[0-9]', '', t)
+        t = re.sub(r'[^\w\s]', '', t)
+        t = re.sub(r'<.*?>', '', t)
+        t = re.sub(r'[#£^.*<>?!+=/)(%]', '', t)
+        return t
 
 
 def tokenizer(text: str) -> list:
@@ -76,10 +77,10 @@ def tokenizer(text: str) -> list:
 def vectorization(max_features: int, df: pd.DataFrame, column: str) -> np.ndarray:
     """ TfIdfVectorization applies on input text corpus and returns the vectorized text. """
     vectorizer = TfidfVectorizer(
-        lowercase = True,
-        tokenizer = tokenizer,
-        max_features = max_features,
-        use_idf = True
+        lowercase=True,
+        tokenizer=tokenizer,
+        max_features=max_features,
+        use_idf=True
     )
     vectorizer.fit(df[column])
     inputs = vectorizer.transform(df[column])
@@ -91,9 +92,9 @@ def split_data(vectorized_inputs: np.ndarray, target: pd.Series, test_size: int)
     train_inp, val_inp, train_target, val_target = split(
         vectorized_inputs,
         target,
-        test_size = test_size,
-        random_state = 42,
-        stratify = target
+        test_size=test_size,
+        random_state=42,
+        stratify=target
     )
     return (train_inp, val_inp, train_target, val_target)
 
@@ -105,16 +106,9 @@ def main() -> None:
 
     stoppies = stopwords.words('english')
 
-    # MAKE A FUNCTION THAT DOES THE PROCESSING RATHER THAN HARDCODING PROCESSING
-    df['clean'] = (
-        df['message'].str.replace(r'[0-9]', '', regex=True)
-        .str.replace(r'[#£^.*<>?!+=/)(%]', '', regex=True)
-        .str.replace(r'[^\w\s]', '', regex=True)
-        .str.replace(r'http', '', regex=True)
-        .str.replace(r'com', '', regex=True)
-        .str.replace(r'www', '', regex=True)
-        .apply(lambda x: " ".join(x.lower() for x in x.split() if x not in stoppies))
-    )
+    df['clean'] = df['message'].apply(lambda x: process_texts(x))
+    df['clean'] = df['clean'].apply(lambda x: ' '.join(x for x in x.split() if len(x) > 1))
+    df['clean'] = df['clean'].apply(lambda x: ' '.join(x for x in x.split() if x not in set(stoppies)))
 
     target = df['label'].map({'ham': 0, 'spam': 1})
     inputs = vectorization(max_features=1000, df=df, column='clean')
@@ -131,4 +125,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
